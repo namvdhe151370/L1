@@ -1,0 +1,44 @@
+﻿@model IEnumerable<VuDucNam_L1.Models.DistrictModel>
+@{
+    ViewBag.Title = "Districts";
+}
+
+<h2>District List</h2>
+<p>
+    <a asp-action="Create" class="btn btn-primary">Create New</a>
+</p>
+<table class="table">
+    <thead>
+        <tr>
+            <th>District ID</th>
+            <th>District Name</th>
+            <th>City Name</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var district in Model)
+        {
+            <tr>
+                <td>@district.DistrictId</td>
+                <td>@district.DistrictName</td>
+                <td>@district.CityName</td>
+                <td>
+                    <a asp-action="Edit" asp-route-id="@district.DistrictId" class="btn btn-primary">Edit</a> | 
+                    <a asp-action="Delete" asp-route-id="@district.DistrictId" class="btn btn-danger">Delete</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<nav>
+    <ul class="pagination">
+        @for (int i = 1; i <= ViewBag.TotalPages; i++)
+        {
+            <li class="page-item @(i == ViewBag.CurrentPage ? "active" : "")">
+                <a class="page-link" asp-action="Index" asp-route-pageNumber="@i" style="margin-right: 5px">@i</a>
+            </li>
+        }
+    </ul>
+</nav>

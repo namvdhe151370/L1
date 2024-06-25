@@ -1,0 +1,56 @@
+﻿@model IEnumerable<VuDucNam_L1.Models.WardModel>
+
+@{
+    ViewBag.Title = "Ward List";
+}
+
+<h2>Ward List</h2>
+
+<p>
+    <a asp-action="Create" class="btn btn-primary">Create New</a>
+</p>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>District ID</th>
+            <th>
+                Ward Name
+            </th>
+            <th>
+                District
+            </th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.WardId)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.WardName)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.DistrictName)
+                </td>
+                <td>
+                    <a asp-action="Edit" asp-route-id="@item.WardId" class="btn btn-primary">Edit</a> |
+                    <a asp-action="Delete" asp-route-id="@item.WardId" class="btn btn-danger">Delete</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+<nav>
+    <ul class="pagination">
+        @for (int i = 1; i <= ViewBag.TotalPages; i++)
+        {
+            <li class="page-item @(i == ViewBag.CurrentPage ? "active" : "")">
+                <a class="page-link" asp-action="Index" asp-route-pageNumber="@i" style="margin-right: 5px">@i</a>
+            </li>
+        }
+    </ul>
+</nav>

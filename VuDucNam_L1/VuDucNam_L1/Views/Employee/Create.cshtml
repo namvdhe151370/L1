@@ -1,0 +1,310 @@
+﻿@model EmployeeModel
+
+<h1>Create Employee</h1>
+
+<form asp-action="Create" id="createEmployeeForm">
+    <div class="row">
+        <div class="form-group col-md-3">
+            <label asp-for="EmployeeName" class="control-label"></label>
+            <input asp-for="EmployeeName" class="form-control" />
+            <span asp-validation-for="EmployeeName" class="text-danger"></span>
+        </div>
+        <div class="form-group col-md-3">
+            <label asp-for="Dob" class="control-label"></label>
+            <input type="text" class="form-control datepicker-input dob-datepicker-input" id="Dob" name="Dob" />
+            <span asp-validation-for="Dob" class="text-danger"></span>
+        </div>
+        <div class="form-group col-md-3">
+            <label asp-for="Age" class="control-label"></label>
+            <input asp-for="Age" class="form-control" id="Age" readonly />
+            <span asp-validation-for="Age" class="text-danger"></span>
+        </div>
+        <div class="form-group col-md-3">
+            <label asp-for="EthnicId" class="control-label"></label>
+            <select asp-for="EthnicId" asp-items="@ViewBag.EthnicList" class="form-control">
+                <option value="">-- Select Ethnicity --</option>
+            </select>
+            <span asp-validation-for="EthnicId" class="text-danger"></span>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="form-group col-md-3">
+            <label asp-for="JobId" class="control-label"></label>
+            <select asp-for="JobId" asp-items="@ViewBag.JobList" class="form-control">
+                <option value="">-- Select Job --</option>
+            </select>
+            <span asp-validation-for="JobId" class="text-danger"></span>
+        </div>
+        <div class="form-group col-md-3">
+            <label asp-for="CitizenNumber" class="control-label"></label>
+            <input asp-for="CitizenNumber" class="form-control" id="CitizenNumber" />
+            <span asp-validation-for="CitizenNumber" class="text-danger"></span>
+            <div class="form-check">
+                <input class="form-check-input" type="checkbox" id="NoCitizenNumber" />
+                <label class="form-check-label" for="NoCitizenNumber">No Citizen Number</label>
+            </div>
+        </div>
+        <div class="form-group col-md-3">
+            <label asp-for="PhoneNumber" class="control-label"></label>
+            <input asp-for="PhoneNumber" class="form-control" id="PhoneNumber" />
+            <span asp-validation-for="PhoneNumber" class="text-danger"></span>
+            <div class="form-check">
+                <input class="form-check-input" type="checkbox" id="NoPhoneNumber" />
+                <label class="form-check-label" for="NoPhoneNumber">No Phone Number</label>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="form-group col-md-3">
+            <label asp-for="CityId" class="control-label"></label>
+            <select asp-for="CityId" asp-items="@ViewBag.CityList" class="form-control" id="CityId">
+                <option value="">-- Select City --</option>
+            </select>
+            <span asp-validation-for="CityId" class="text-danger"></span>
+        </div>
+        <div class="form-group col-md-3" id="districtDiv">
+            <label asp-for="DistrictId" class="control-label"></label>
+            <select asp-for="DistrictId" asp-items="@ViewBag.DistrictList" class="form-control" id="DistrictId">
+                <option value="">-- Select District --</option>
+            </select>
+            <span asp-validation-for="DistrictId" class="text-danger"></span>
+        </div>
+        <div class="form-group col-md-3" id="wardDiv">
+            <label asp-for="WardId" class="control-label"></label>
+            <select asp-for="WardId" asp-items="@ViewBag.WardList" class="form-control" id="WardId">
+                <option value="">-- Select Ward --</option>
+            </select>
+            <span asp-validation-for="WardId" class="text-danger"></span>
+        </div>
+        <div class="form-group col-md-3">
+            <label asp-for="SpecificAddress" class="control-label"></label>
+            <input asp-for="SpecificAddress" class="form-control" />
+            <span asp-validation-for="SpecificAddress" class="text-danger"></span>
+        </div>
+    </div>
+
+    <div class="form-group mt-3">
+        <h4>Certificates</h4>
+        <div id="certificateContainer">
+            @if (Model != null && Model.Certificates != null)
+            {
+                for (int i = 0; i < Model.Certificates.Count; i++)
+                {
+                    <div class="certificate-item" data-index="@i">
+                        <div class="row">
+                            <div class="form-group col-md-3">
+                                <label for="Certificates_@(i)__Name" class="control-label">Name</label>
+                                <input type="text" id="Certificates_@(i)__Name" name="Certificates[@(i)].Name" class="form-control" value="@Model.Certificates[i].Name" />
+                                <span asp-validation-for="Certificates[i].Name" class="text-danger"></span>
+                            </div>
+                            <div class="form-group col-md-3">
+                                <label for="Certificates_@(i)__IssuedDate" class="control-label">Issued Date</label>
+                                <input type="text" id="Certificates_@(i)__IssuedDate" name="Certificates[@(i)].IssuedDate" class="form-control datepicker-input issued-datepicker-input" value="@Model.Certificates[i].IssuedDate.ToString("dd-MM-yyyy")" />
+                                <span asp-validation-for="Certificates[i].IssuedDate" class="text-danger"></span>
+                            </div>
+                            <div class="form-group col-md-3">
+                                <label for="Certificates_@(i)__IssuedBy" class="control-label">Issued By</label>
+                                <input type="text" id="Certificates_@(i)__IssuedBy" name="Certificates[@(i)].IssuedBy" class="form-control" value="@Model.Certificates[i].IssuedBy" />
+                                <span asp-validation-for="Certificates[i].IssuedBy" class="text-danger"></span>
+                            </div>
+                            <div class="form-group col-md-3">
+                                <label for="Certificates_@(i)__ExpiryDate" class="control-label">Expiry Date</label>
+                                <input type="text" id="Certificates_@(i)__ExpiryDate" name="Certificates[@(i)].ExpiryDate" class="form-control datepicker-input expiry-datepicker-input" value="@Model.Certificates[i].ExpiryDate.ToString("dd-MM-yyyy")" />
+                                <span asp-validation-for="Certificates[i].ExpiryDate" class="text-danger"></span>
+                            </div>
+                            <div class="form-group col-md-3 mt-2 mb-2">
+                                <button type="button" class="btn btn-danger remove-certificate-btn" >Delete</button>
+                            </div>
+                        </div>
+                    </div>
+                }
+            }
+        </div>
+        <button type="button" id="addCertificateBtn" class="btn btn-success">Add Certificate</button>
+    </div>
+
+    <div class="form-group mt-3 d-flex">
+        <a asp-action="Index" class="btn btn-secondary">Cancel</a>
+        <input type="submit" value="Create" class="btn btn-primary" style="margin-left: 10px;" />
+    </div>
+</form>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            function initializeDatepicker(selector, options) {
+                $(selector).datepicker(Object.assign({
+                    dateFormat: "dd-mm-yy",
+                    changeYear: true,
+                    yearRange: "-150:+150"
+                }, options));
+            }
+
+            initializeDatepicker(".datepicker-input");
+            $("#createEmployeeForm").on('focus', '.dob-datepicker-input', function () {
+                $(this).datepicker("option", "maxDate", new Date());
+            });
+            $("#createEmployeeForm").on('focus', '.issued-datepicker-input', function () {
+                $(this).datepicker("option", "maxDate", new Date());
+            });
+            $("#createEmployeeForm").on('focus', '.expiry-datepicker-input', function () {
+                $(this).datepicker("option", "minDate", new Date());
+            });
+
+            function parseDateToUSFormat(dateString) {
+                var parts = dateString.split('-');
+                if (parts.length === 3) {
+                    var dd = parts[0];
+                    var mm = parts[1];
+                    var yyyy = parts[2];
+                    return mm + '/' + dd + '/' + yyyy;
+                }
+                return null;
+            }
+            $('.dob-datepicker-input').change(function () {
+                var dobText = $(this).val();
+                var dob = new Date(parseDateToUSFormat(dobText));
+                var age = calculateAge(dob);
+                $('#Age').val(age);
+            });
+            function calculateAge(dob) {
+                var today = new Date();
+                var age = today.getFullYear() - dob.getFullYear();
+                var m = today.getMonth() - dob.getMonth();
+                if (m < 0 || (m === 0 && today.getDate() < dob.getDate())) {
+                    age--;
+                }
+                return age;
+            }
+
+            $('#createEmployeeForm').submit(function () {
+                $('.dob-datepicker-input, .issued-datepicker-input, .expiry-datepicker-input').each(function () {
+                    var dateText = $(this).val();
+                    var parsedDate = parseDateToUSFormat(dateText);
+                    $(this).val(parsedDate);
+                });
+            });
+
+            $('#CityId').change(function () {
+                var cityId = $(this).val();
+                if (cityId) {
+                    $.ajax({
+                        url: '/Employee/GetDistricts',
+                        type: 'GET',
+                        data: { cityId: cityId },
+                        success: function (response) {
+                            $('#DistrictId').empty().append('<option value="">-- Select District --</option>');
+                            $('#WardId').empty().append('<option value="">-- Select Ward --</option>');
+                            $.each(response, function (index, district) {
+                                $('#DistrictId').append('<option value="' + district.districtId + '">' + district.districtName + '</option>');
+                            });
+                            $('#DistrictId').prop('disabled', false);
+                        }
+                    });
+                } else {
+                    $('#DistrictId').empty().prop('disabled', true);
+                    $('#WardId').empty().prop('disabled', true);
+                }
+            });
+
+            $('#DistrictId').change(function () {
+                var districtId = $(this).val();
+                if (districtId) {
+                    $.ajax({
+                        url: '/Employee/GetWards',
+                        type: 'GET',
+                        data: { districtId: districtId },
+                        success: function (response) {
+                            $('#WardId').empty().append('<option value="">-- Select Ward --</option>');
+                            $.each(response, function (index, ward) {
+                                $('#WardId').append('<option value="' + ward.wardId + '">' + ward.wardName + '</option>');
+                            });
+                            $('#WardId').prop('disabled', false);
+                        }
+                    });
+                } else {
+                    $('#WardId').empty().prop('disabled', true);
+                }
+            });
+
+            $('#NoCitizenNumber').change(function () {
+                if (this.checked) {
+                    $('#CitizenNumber').val('').prop('disabled', true).siblings('.text-danger').empty();
+                } else {
+                    $('#CitizenNumber').prop('disabled', false);
+                }
+            });
+
+            $('#NoPhoneNumber').change(function () {
+                if (this.checked) {
+                    $('#PhoneNumber').val('').prop('disabled', true).siblings('.text-danger').empty();
+                } else {
+                    $('#PhoneNumber').prop('disabled', false);
+                }
+            });
+
+            var certificateCount = @Model?.Certificates?.Count ?? 0;
+            $('#addCertificateBtn').click(function () {
+                if (certificateCount < 3) {
+                    var newItemHtml = '<div class="certificate-item" data-index="' + certificateCount + '">' +
+                        '<div class="row">' +
+                        '<div class="form-group col-md-3">' +
+                        '<label for="Certificates_' + certificateCount + '__Name" class="control-label">Name</label>' +
+                        '<input type="text" id="Certificates_' + certificateCount + '__Name" name="Certificates[' + certificateCount + '].Name" class="form-control" />' +
+                        '<span asp-validation-for="Certificates[' + certificateCount + '].Name" class="text-danger"></span>' +
+                        '</div>' +
+                        '<div class="form-group col-md-3">' +
+                        '<label for="Certificates_' + certificateCount + '__IssuedDate" class="control-label">Issued Date</label>' +
+                        '<input type="text" id="Certificates_' + certificateCount + '__IssuedDate" name="Certificates[' + certificateCount + '].IssuedDate" class="form-control datepicker-input issued-datepicker-input" />' +
+                        '<span asp-validation-for="Certificates[' + certificateCount + '].IssuedDate" class="text-danger"></span>' +
+                        '</div>' +
+                        '<div class="form-group col-md-3">' +
+                        '<label for="Certificates_' + certificateCount + '__IssuedBy" class="control-label">Issued By</label>' +
+                        '<input type="text" id="Certificates_' + certificateCount + '__IssuedBy" name="Certificates[' + certificateCount + '].IssuedBy" class="form-control" />' +
+                        '<span asp-validation-for="Certificates[' + certificateCount + '].IssuedBy" class="text-danger"></span>' +
+                        '</div>' +
+                        '<div class="form-group col-md-3">' +
+                        '<label for="Certificates_' + certificateCount + '__ExpiryDate" class="control-label">Expiry Date</label>' +
+                        '<input type="text" id="Certificates_' + certificateCount + '__ExpiryDate" name="Certificates[' + certificateCount + '].ExpiryDate" class="form-control datepicker-input expiry-datepicker-input" />' +
+                        '<span asp-validation-for="Certificates[' + certificateCount + '].ExpiryDate" class="text-danger"></span>' +
+                        '</div>' +
+                        '<div class="form-group col-md-3 mt-2 mb-2"> ' +
+                        '<button type="button" class="btn btn-danger remove-certificate-btn" >Delete</button>' +
+                        '</div>' +
+                        '</div>' +
+                        '</div>';
+                    $('#certificateContainer').append(newItemHtml);
+                    certificateCount++;
+                    initializeDatepicker('.datepicker-input');
+                    $(".expiry-datepicker-input").datepicker("option", "minDate", new Date());
+                    $(".issued-datepicker-input").datepicker("option", "maxDate", new Date());
+                } else {
+                    alert('Maximum 3 certificates allowed.');
+                }
+            });
+
+            $('#certificateContainer').on('click', '.remove-certificate-btn', function () {
+                $(this).closest('.certificate-item').remove();
+                certificateCount--;
+                $('#certificateContainer .certificate-item').each(function (index) {
+                    $(this).attr('data-index', index);
+                    $(this).find('[id^="Certificates_"]').each(function () {
+                        var id = $(this).attr('id');
+                        var name = $(this).attr('name');
+                        var newId = id.replace(/\d+/, index);
+                        var newName = name.replace(/\d+/, index);
+                        $(this).attr('id', newId);
+                        $(this).attr('name', newName);
+                    });
+                });
+            });
+        });
+    </script>
+}
