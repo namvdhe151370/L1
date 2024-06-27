@@ -1,3 +1,0 @@
-﻿<Project>
-  <Import Project="..\build\VuDucNam_L1.props" />
-</Project>
