@@ -3,6 +3,9 @@ using System.Threading.Tasks;
 using VuDucNam_L1.Models;
 using VuDucNam_L1.Service.IServices;
 using VuDucNam_L1.Service;
+using VuDucNam_L1.Constants;
+using VuDucNam_L1.Service.Services;
+using FluentValidation;
 
 namespace VuDucNam_L1.Controllers
 {
@@ -36,14 +39,21 @@ namespace VuDucNam_L1.Controllers
         {
             if (ModelState.IsValid)
             {
-                var result = await _cityService.AddAsync(cityModel);
-                if (result.IsValid)
+                try
                 {
+                    await _cityService.AddAsync(cityModel);
+                    TempData[Validates.SuccessMessage] = Validates.CityCreatedSuccessfully;
                     return RedirectToAction(nameof(Index));
                 }
-                foreach (var error in result.Errors)
+                catch (ValidationException ex)
                 {
-                    ModelState.AddModelError(error.PropertyName, error.ErrorMessage);
+                    TempData[Validates.ErrorMessage] = Validates.CityValidatorError;
+                    return RedirectToAction(nameof(Index));
+                }
+                catch (Exception ex)
+                {
+                    TempData[Validates.ErrorMessage] = string.Format(Validates.ErrorCreatingCity, ex.Message);
+                    return RedirectToAction(nameof(Index));
                 }
             }
             return View(cityModel);
@@ -70,14 +80,21 @@ namespace VuDucNam_L1.Controllers
 
             if (ModelState.IsValid)
             {
-                var result = await _cityService.UpdateAsync(cityModel);
-                if (result.IsValid)
+                try
                 {
+                    await _cityService.UpdateAsync(cityModel);
+                    TempData[Validates.SuccessMessage] = Validates.CityUpdatedSuccessfully;
                     return RedirectToAction(nameof(Index));
                 }
-                foreach (var error in result.Errors)
+                catch (ValidationException ex)
                 {
-                    ModelState.AddModelError(error.PropertyName, error.ErrorMessage);
+                    TempData[Validates.ErrorMessage] = Validates.CityValidatorError;
+                    return RedirectToAction(nameof(Index));
+                }
+                catch (Exception ex)
+                {
+                    TempData[Validates.ErrorMessage] = string.Format(Validates.ErrorUpdatingCity, ex.Message);
+                    return RedirectToAction(nameof(Index));
                 }
             }
             return View(cityModel);
@@ -97,17 +114,17 @@ namespace VuDucNam_L1.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var result = await _cityService.DeleteAsync(id);
-            if (!result.IsValid)
+            try
             {
-                foreach (var error in result.Errors)
-                {
-                    ModelState.AddModelError(error.PropertyName, error.ErrorMessage);
-                }
-                var cityModel = await _cityService.GetByIdAsync(id);
-                return View("Delete", cityModel);
+                await _cityService.DeleteAsync(id);
+                TempData[Validates.SuccessMessage] = Validates.CityDeletedSuccessfully;
+                return RedirectToAction(nameof(Index));
             }
-            return RedirectToAction(nameof(Index));
+            catch (Exception ex)
+            {
+                TempData[Validates.ErrorMessage] = string.Format(Validates.ErrorDeletingCity, ex.Message);
+                return RedirectToAction(nameof(Index));
+            }
         }
     }
 }

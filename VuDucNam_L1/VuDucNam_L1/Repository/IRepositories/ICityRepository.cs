@@ -9,9 +9,11 @@ namespace VuDucNam_L1.Repository.IRepositories
         Task<IEnumerable<CityModel>> GetAllCities();
         Task<IEnumerable<CityModel>> GetAllAsync(int pageNumber, int pageSize);
         Task<CityModel> GetByIdAsync(int id);
-        Task<ValidationResult> AddAsync(CityModel cityModel);
-        Task<ValidationResult> UpdateAsync(CityModel cityModel);
-        Task<ValidationResult> DeleteAsync(int id);
+        Task AddAsync(CityModel cityModel);
+        Task UpdateAsync(CityModel cityModel);
+        Task DeleteAsync(int id);
         Task<int> GetTotalCountAsync();
+        Task CheckCityIdAsync( int cityId);
+        Task<int> GetCityIdByNameAsync(string cityName);
     }
 }

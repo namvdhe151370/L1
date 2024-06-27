@@ -9,7 +9,8 @@ namespace VuDucNam_L1.Repository.IRepositories
         Task<int> GetTotalEmployeeCountAsync();
         Task<EmployeeModel> GetEmployeeByIdAsync(int employeeId);
         Task<IEnumerable<EmployeeModel>> GetEmployeesToExportAsync(List<int> employeeIds);
-        Task CreateEmployeeToImportAsync(EmployeeImportModel employee);
+        Task<EmployeeModel> PrepareEmployeeModelToImportAsync(EmployeeImportModel employeeImport);
+        Task CreateEmployeeToImportAsync(EmployeeModel employeeModel);
         Task<IEnumerable<CertificateModel>> GetCertificatesByEmployeeIdAsync(int employeeId);
         Task AddEmployeeAsync(EmployeeModel employee);
         Task AddCertificatesAsync(int employeeId, IEnumerable<CertificateModel> certificates);

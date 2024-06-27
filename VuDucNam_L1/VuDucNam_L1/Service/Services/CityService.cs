@@ -1,4 +1,5 @@
-﻿using FluentValidation.Results;
+﻿using FluentValidation;
+using FluentValidation.Results;
 using VuDucNam_L1.DataAccess;
 using VuDucNam_L1.Models;
 using VuDucNam_L1.Repository.IRepositories;
@@ -9,10 +10,12 @@ namespace VuDucNam_L1.Service.Services
     public class CityService : ICityService
     {
         private readonly ICityRepository _cityRepository;
+        private readonly IValidator<CityModel> _validator;
 
-        public CityService(ICityRepository cityRepository)
+        public CityService(ICityRepository cityRepository, IValidator<CityModel> validator)
         {
             _cityRepository = cityRepository;
+            _validator = validator;
         }
 
         public async Task<IEnumerable<CityModel>> GetAllCities()
@@ -30,19 +33,29 @@ namespace VuDucNam_L1.Service.Services
             return await _cityRepository.GetByIdAsync(id);
         }
 
-        public async Task<ValidationResult> AddAsync(CityModel cityModel)
+        public async Task AddAsync(CityModel cityModel)
         {
-            return await _cityRepository.AddAsync(cityModel);
+            var validationResult = await _validator.ValidateAsync(cityModel);
+            if (!validationResult.IsValid)
+            {
+                throw new ValidationException(validationResult.Errors);
+            }
+            await _cityRepository.AddAsync(cityModel);
         }
 
-        public async Task<ValidationResult> UpdateAsync(CityModel cityModel)
+        public async Task UpdateAsync(CityModel cityModel)
         {
-            return await _cityRepository.UpdateAsync(cityModel);
+            var validationResult = await _validator.ValidateAsync(cityModel);
+            if (!validationResult.IsValid)
+            {
+                throw new ValidationException(validationResult.Errors);
+            }
+            await _cityRepository.UpdateAsync(cityModel);
         }
 
-        public async Task<ValidationResult> DeleteAsync(int id)
+        public async Task DeleteAsync(int id)
         {
-            return await _cityRepository.DeleteAsync(id);
+            await _cityRepository.DeleteAsync(id);
         }
 
         public async Task<int> GetTotalCountAsync()

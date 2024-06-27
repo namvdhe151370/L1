@@ -17,10 +17,16 @@ namespace VuDucNam_L1.Service.Services
     public class EmployeeService : IEmployeeService
     {
         private readonly IEmployeeRepository _employeeRepository;
+        private readonly IValidator<EmployeeModel> _employeeValidator;
+        private readonly IValidator<CertificateModel> _certificateValidator;
 
-        public EmployeeService(IEmployeeRepository employeeRepository)
+        public EmployeeService(IEmployeeRepository employeeRepository,
+                           IValidator<EmployeeModel> employeeValidator,
+                           IValidator<CertificateModel> certificateValidator)
         {
             _employeeRepository = employeeRepository;
+            _employeeValidator = employeeValidator;
+            _certificateValidator = certificateValidator;
         }
 
         public async Task<IEnumerable<EmployeeModel>> GetAllEmployeesAsync(int pageNumber, int pageSize)
@@ -45,7 +51,15 @@ namespace VuDucNam_L1.Service.Services
 
         public async Task CreateEmployeeToImportAsync(EmployeeImportModel employee)
         {
-            await _employeeRepository.CreateEmployeeToImportAsync(employee);
+            var employeeModel = await _employeeRepository.PrepareEmployeeModelToImportAsync(employee);
+            var validationResult = await _employeeValidator.ValidateAsync(employeeModel);
+
+            if (!validationResult.IsValid)
+            {
+                throw new ValidationException(validationResult.Errors);
+            }
+
+            await _employeeRepository.CreateEmployeeToImportAsync(employeeModel);
         }
 
         public async Task<IEnumerable<CertificateModel>> GetCertificatesByEmployeeIdAsync(int employeeId)
@@ -55,21 +69,47 @@ namespace VuDucNam_L1.Service.Services
 
         public async Task AddEmployeeAsync(EmployeeModel employee)
         {
+            var validationResult = await _employeeValidator.ValidateAsync(employee);
+            if (!validationResult.IsValid)
+            {
+                throw new ValidationException(validationResult.Errors);
+            }
             await _employeeRepository.AddEmployeeAsync(employee);
         }
 
         public async Task AddCertificatesAsync(int employeeId, IEnumerable<CertificateModel> certificates)
         {
+            foreach (var cert in certificates)
+            {
+                var validationResult = await _certificateValidator.ValidateAsync(cert);
+                if (!validationResult.IsValid)
+                {
+                    throw new ValidationException(validationResult.Errors);
+                }
+            }
             await _employeeRepository.AddCertificatesAsync(employeeId, certificates);
         }
 
         public async Task UpdateEmployeeAsync(EmployeeModel employee)
         {
+            var validationResult = await _employeeValidator.ValidateAsync(employee);
+            if (!validationResult.IsValid)
+            {
+                throw new ValidationException(validationResult.Errors);
+            }
             await _employeeRepository.UpdateEmployeeAsync(employee);
         }
 
         public async Task UpdateCertificatesAsync(EmployeeModel employee)
         {
+            foreach (var cert in employee.Certificates)
+            {
+                var validationResult = await _certificateValidator.ValidateAsync(cert);
+                if (!validationResult.IsValid)
+                {
+                    throw new ValidationException(validationResult.Errors);
+                }
+            }
             await _employeeRepository.UpdateCertificatesAsync(employee.EmployeeId, employee.Certificates);
         }
 
@@ -143,7 +183,7 @@ namespace VuDucNam_L1.Service.Services
             var memoryStream = new MemoryStream();
             using (var writer = new StreamWriter(memoryStream, Encoding.UTF8, 1024, true))
             {
-                var header = NotificationMessage.ExcelHeader;
+                var header = Validates.ExcelHeader;
                 for (int i = 1; i <= maxCertificates; i++)
                 {
                     header += $",CertificateName{i},IssuedDate{i},IssuedBy{i},ExpiryDate{i}";

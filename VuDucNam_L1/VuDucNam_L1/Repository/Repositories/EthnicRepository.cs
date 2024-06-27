@@ -24,5 +24,18 @@ namespace VuDucNam_L1.Repository.Repositories
             var ethnics = await _context.Ethnics.ToListAsync();
             return _mapper.Map<List<EthnicModel>>(ethnics);
         }
+        public async Task CheckEthnicIdAsync(int ethnicId)
+        {
+            var ethnicExists = await _context.Ethnics.AsNoTracking().AnyAsync(e => e.EthnicId == ethnicId);
+            if (!ethnicExists)
+            {
+                throw new Exception($"Ethnic with ID {ethnicId} not found.");
+            }
+        }
+        public async Task<int> GetEthnicIdByNameAsync(string ethnicName)
+        {
+            var ethnic = await _context.Ethnics.AsNoTracking().FirstOrDefaultAsync(e => e.EthnicName == ethnicName);
+            return ethnic == null ? throw new InvalidOperationException($"Ethnic '{ethnicName}' not found.") : ethnic.EthnicId;
+        }
     }
 }

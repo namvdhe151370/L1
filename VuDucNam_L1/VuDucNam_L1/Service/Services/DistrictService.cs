@@ -1,4 +1,5 @@
-﻿using VuDucNam_L1.DataAccess;
+﻿using FluentValidation;
+using VuDucNam_L1.DataAccess;
 using VuDucNam_L1.Models;
 using VuDucNam_L1.Repository.IRepositories;
 using VuDucNam_L1.Service.IServices;
@@ -8,10 +9,12 @@ namespace VuDucNam_L1.Service.Services
     public class DistrictService : IDistrictService
     {
         private readonly IDistrictRepository _districtRepository;
+        private readonly IValidator<DistrictModel> _validator;
 
-        public DistrictService(IDistrictRepository districtRepository)
+        public DistrictService(IDistrictRepository districtRepository, IValidator<DistrictModel> validator)
         {
             _districtRepository = districtRepository;
+            _validator = validator;
         }
 
         public async Task<IEnumerable<DistrictModel>> GetAllDistrictAsync()
@@ -36,11 +39,21 @@ namespace VuDucNam_L1.Service.Services
 
         public async Task AddAsync(DistrictModel districtModel)
         {
+            var validationResult = await _validator.ValidateAsync(districtModel);
+            if (!validationResult.IsValid)
+            {
+                throw new ValidationException(validationResult.Errors);
+            }
             await _districtRepository.AddAsync(districtModel);
         }
 
         public async Task UpdateAsync(DistrictModel districtModel)
         {
+            var validationResult = await _validator.ValidateAsync(districtModel);
+            if (!validationResult.IsValid)
+            {
+                throw new ValidationException(validationResult.Errors);
+            }
             await _districtRepository.UpdateAsync(districtModel);
         }
 

@@ -4,6 +4,23 @@
 }
 
 <h2>District List</h2>
+<div>
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div id="errorMessage" class="alert alert-danger mt-3">
+            <h4>Error:</h4>
+            <p>@TempData["ErrorMessage"]</p>
+        </div>
+    }
+
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div id="successMessage" class="alert alert-success mt-3">
+            <h4>Success:</h4>
+            <p>@TempData["SuccessMessage"]</p>
+        </div>
+    }
+</div>
 <p>
     <a asp-action="Create" class="btn btn-primary">Create New</a>
 </p>
@@ -42,3 +59,19 @@
         }
     </ul>
 </nav>
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            if ($('#errorMessage').length > 0) {
+                setTimeout(function () {
+                    $('#errorMessage').fadeOut();
+                }, 8000);
+            }
+            if ($('#successMessage').length > 0) {
+                setTimeout(function () {
+                    $('#successMessage').fadeOut();
+                }, 8000);
+            }
+        });
+    </script>
+}

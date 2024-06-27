@@ -23,12 +23,13 @@ namespace VuDucNam_L1.Repository.Repositories
 
         public async Task<IEnumerable<CityModel>> GetAllCities()
         {
-            var cities = await _context.Cities.Include(c => c.Districts).ToListAsync();
+            var cities = await _context.Cities.Include(c => c.Districts).AsNoTracking().ToListAsync();
             return _mapper.Map<List<CityModel>>(cities);
         }
         public async Task<IEnumerable<CityModel>> GetAllAsync(int pageNumber, int pageSize)
         {
             var cities = await _context.Cities
+                .AsNoTracking()
                 .Include(c => c.Districts)
                 .Skip((pageNumber - 1) * pageSize)
                 .Take(pageSize)
@@ -38,64 +39,51 @@ namespace VuDucNam_L1.Repository.Repositories
 
         public async Task<CityModel> GetByIdAsync(int id)
         {
-            var city = await _context.Cities
+            var city = await _context.Cities.AsNoTracking()
                 .Include(c => c.Districts)
                 .FirstOrDefaultAsync(c => c.CityId == id);
             return _mapper.Map<CityModel>(city);
         }
 
-        public async Task<ValidationResult> AddAsync(CityModel cityModel)
+        public async Task AddAsync(CityModel cityModel)
         {
-            var validationResult = await _validator.ValidateAsync(cityModel);
-            if (!validationResult.IsValid)
-            {
-                return validationResult;
-            }
-
             var city = _mapper.Map<City>(cityModel);
             _context.Cities.Add(city);
             await _context.SaveChangesAsync();
-            return validationResult;
         }
 
-        public async Task<ValidationResult> UpdateAsync(CityModel cityModel)
+        public async Task UpdateAsync(CityModel cityModel)
         {
-            var validationResult = await _validator.ValidateAsync(cityModel);
-            if (!validationResult.IsValid)
-            {
-                return validationResult;
-            }
-
+           await CheckCityIdAsync(cityModel.CityId);
             var city = await _context.Cities.FindAsync(cityModel.CityId);
-            if (city == null)
-            {
-                validationResult.Errors.Add(new ValidationFailure("CityId", "City not found"));
-                return validationResult;
-            }
-
             _mapper.Map(cityModel, city);
             await _context.SaveChangesAsync();
-            return validationResult;
         }
 
-        public async Task<ValidationResult> DeleteAsync(int id)
+        public async Task DeleteAsync(int CityId)
         {
-            var city = await _context.Cities.FindAsync(id);
-            if (city == null)
-            {
-                var validationResult = new ValidationResult();
-                validationResult.Errors.Add(new ValidationFailure("CityId", "City not found"));
-                return validationResult;
-            }
-
+            await CheckCityIdAsync(CityId);
+            var city = await _context.Cities.FindAsync(CityId);
             _context.Cities.Remove(city);
             await _context.SaveChangesAsync();
-            return new ValidationResult();
         }
 
         public async Task<int> GetTotalCountAsync()
         {
-            return await _context.Cities.CountAsync();
+            return await _context.Cities.AsNoTracking().CountAsync();
+        }
+        public async Task CheckCityIdAsync(int cityId)
+        {
+            var cityExists = await _context.Cities.AsNoTracking().AnyAsync(e => e.CityId == cityId);
+            if (!cityExists)
+            {
+                throw new Exception($"City with ID {cityId} not found.");
+            }
+        }
+        public async Task<int> GetCityIdByNameAsync(string cityName)
+        {
+            var city = await _context.Cities.AsNoTracking().FirstOrDefaultAsync(c => c.CityName == cityName);
+            return city == null ? throw new InvalidOperationException($"City '{cityName}' not found.") : city.CityId;
         }
     }
 }

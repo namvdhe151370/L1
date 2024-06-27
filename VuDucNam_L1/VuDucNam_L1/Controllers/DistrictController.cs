@@ -1,6 +1,7 @@
 ﻿using FluentValidation;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using VuDucNam_L1.Constants;
 using VuDucNam_L1.Models;
 using VuDucNam_L1.Service.IServices;
 
@@ -40,8 +41,22 @@ namespace VuDucNam_L1.Controllers
         {
             if (ModelState.IsValid)
             {
-                await _districtService.AddAsync(district);
-                return RedirectToAction(nameof(Index));
+                try
+                {
+                    await _districtService.AddAsync(district);
+                    TempData[Validates.SuccessMessage] = Validates.DistrictCreatedSuccessfully;
+                    return RedirectToAction(nameof(Index));
+                }
+                catch (ValidationException ex)
+                {
+                    TempData[Validates.ErrorMessage] = Validates.DistrictValidatorError;
+                    return RedirectToAction(nameof(Index));
+                }
+                catch (Exception ex)
+                {
+                    TempData[Validates.ErrorMessage] = string.Format(Validates.ErrorCreatingDistrict, ex.Message);
+                    return RedirectToAction(nameof(Index));
+                }
             }
             ViewBag.Cities = new SelectList(await _cityService.GetAllCities(), "CityId", "CityName");
             return View(district);
@@ -72,18 +87,18 @@ namespace VuDucNam_L1.Controllers
                 try
                 {
                     await _districtService.UpdateAsync(district);
+                    TempData[Validates.SuccessMessage] = Validates.DistrictUpdatedSuccessfully;
                     return RedirectToAction(nameof(Index));
                 }
-                catch (Exception)
+                catch (ValidationException ex)
                 {
-                    if (!await DistrictExists(district.DistrictId))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
+                    TempData[Validates.ErrorMessage] = Validates.DistrictValidatorError;
+                    return RedirectToAction(nameof(Index));
+                }
+                catch (Exception ex)
+                {
+                    TempData[Validates.ErrorMessage] = string.Format(Validates.ErrorUpdatingDistrict, ex.Message);
+                    return RedirectToAction(nameof(Index));
                 }
             }
             ViewBag.Cities = new SelectList(await _cityService.GetAllCities(), "CityId", "CityName");
@@ -104,8 +119,17 @@ namespace VuDucNam_L1.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            await _districtService.DeleteAsync(id);
-            return RedirectToAction(nameof(Index));
+            try
+            {
+                await _districtService.DeleteAsync(id);
+                TempData[Validates.SuccessMessage] = Validates.DistrictDeletedSuccessfully;
+                return RedirectToAction(nameof(Index));
+            }
+            catch (Exception ex)
+            {
+                TempData[Validates.ErrorMessage] = string.Format(Validates.ErrorDeletingDistrict, ex.Message);
+                return RedirectToAction(nameof(Index));
+            }
         }
 
         private async Task<bool> DistrictExists(int id)

@@ -10,18 +10,18 @@ namespace VuDucNam_L1.Validation
         public CertificateValidator()
         {
             RuleFor(c => c.Name)
-                .NotEmpty().WithMessage(NotificationMessage.CertificateEmpty)
-                .MaximumLength(Validates.CertificateMaxLength).WithMessage(NotificationMessage.CertificateLength);
+                .NotEmpty().WithMessage(Validates.CertificateEmpty)
+                .MaximumLength(Validates.CertificateMaxLength).WithMessage(Validates.CertificateLength);
 
             RuleFor(c => c.IssuedDate)
-                .NotEmpty().WithMessage(NotificationMessage.IssuedDateEmpty);
+                .NotEmpty().WithMessage(Validates.IssuedDateEmpty);
 
             RuleFor(c => c.IssuedBy)
-                .NotEmpty().WithMessage(NotificationMessage.IssuedByEmpty)
-                .MaximumLength(Validates.IssuedByMaxLength).WithMessage(NotificationMessage.IssuedByLength);
+                .NotEmpty().WithMessage(Validates.IssuedByEmpty)
+                .MaximumLength(Validates.IssuedByMaxLength).WithMessage(Validates.IssuedByLength);
 
             RuleFor(c => c.ExpiryDate)
-               .NotEmpty().WithMessage(NotificationMessage.ExpiryDateEmpty);
+               .NotEmpty().WithMessage(Validates.ExpiryDateEmpty);
         }
     }
 }

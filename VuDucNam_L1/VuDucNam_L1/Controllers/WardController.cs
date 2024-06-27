@@ -1,6 +1,7 @@
 ﻿using FluentValidation;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using VuDucNam_L1.Constants;
 using VuDucNam_L1.Models;
 using VuDucNam_L1.Service.IServices;
 using VuDucNam_L1.Service.Services;
@@ -42,18 +43,18 @@ namespace VuDucNam_L1.Controllers
                 try
                 {
                     await _wardService.AddAsync(wardModel);
+                    TempData[Validates.SuccessMessage] = Validates.WardCreatedSuccessfully;
                     return RedirectToAction(nameof(Index));
                 }
                 catch (ValidationException ex)
                 {
-                    foreach (var error in ex.Errors)
-                    {
-                        ModelState.AddModelError(error.PropertyName, error.ErrorMessage);
-                    }
+                    TempData[Validates.ErrorMessage] = Validates.WardValidatorError;
+                    return RedirectToAction(nameof(Index));
                 }
                 catch (Exception ex)
                 {
-                    ModelState.AddModelError("", ex.Message);
+                    TempData[Validates.ErrorMessage] = string.Format(Validates.ErrorCreatingWard, ex.Message);
+                    return RedirectToAction(nameof(Index));
                 }
             }
 
@@ -87,18 +88,18 @@ namespace VuDucNam_L1.Controllers
                 try
                 {
                     await _wardService.UpdateAsync(wardModel);
+                    TempData[Validates.SuccessMessage] = Validates.WardUpdatedSuccessfully;
                     return RedirectToAction(nameof(Index));
                 }
                 catch (ValidationException ex)
                 {
-                    foreach (var error in ex.Errors)
-                    {
-                        ModelState.AddModelError(error.PropertyName, error.ErrorMessage);
-                    }
+                    TempData[Validates.ErrorMessage] = Validates.WardValidatorError;
+                    return RedirectToAction(nameof(Index));
                 }
                 catch (Exception ex)
                 {
-                    ModelState.AddModelError("", ex.Message);
+                    TempData[Validates.ErrorMessage] = string.Format(Validates.ErrorUpdatingWard, ex.Message);
+                    return RedirectToAction(nameof(Index));
                 }
             }
 
@@ -124,13 +125,13 @@ namespace VuDucNam_L1.Controllers
             try
             {
                 await _wardService.DeleteAsync(id);
+                TempData[Validates.SuccessMessage] = Validates.WardDeletedSuccessfully;
                 return RedirectToAction(nameof(Index));
             }
             catch (Exception ex)
             {
-                ModelState.AddModelError("", ex.Message);
-                var wardModel = await _wardService.GetByIdAsync(id);
-                return View(wardModel);
+                TempData[Validates.ErrorMessage] = string.Format(Validates.ErrorDeletingWard, ex.Message);
+                return RedirectToAction(nameof(Index));
             }
         }
     }

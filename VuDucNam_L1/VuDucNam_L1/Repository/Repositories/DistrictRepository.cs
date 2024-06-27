@@ -11,24 +11,23 @@ namespace VuDucNam_L1.Repository.Repositories
     {
         private readonly AppDbContext _context;
         private readonly IMapper _mapper;
-        private readonly IValidator<DistrictModel> _validator;
 
-        public DistrictRepository(AppDbContext context, IMapper mapper, IValidator<DistrictModel> validator)
+        public DistrictRepository(AppDbContext context, IMapper mapper)
         {
             _context = context;
             _mapper = mapper;
-            _validator = validator;
         }
 
         public async Task<IEnumerable<DistrictModel>> GetAllDistrictAsync()
         {
-            var districts = await _context.Districts.ToListAsync();
+            var districts = await _context.Districts.AsNoTracking().ToListAsync();
             return _mapper.Map<List<DistrictModel>>(districts);
         }
 
         public async Task<IEnumerable<DistrictModel>> GetDistrictsByCityIdAsync(int cityId)
         {
             var districts = await _context.Districts
+                                    .AsNoTracking()
                                     .Where(d => d.CityId == cityId)
                                     .ToListAsync();
             return _mapper.Map<List<DistrictModel>>(districts);
@@ -36,7 +35,7 @@ namespace VuDucNam_L1.Repository.Repositories
 
         public async Task<IEnumerable<DistrictModel>> GetAllByPageAsync(int pageNumber, int pageSize)
         {
-            var districts = await _context.Districts
+            var districts = await _context.Districts.AsNoTracking()
                 .Include(d => d.City)
                 .Skip((pageNumber - 1) * pageSize)
                 .Take(pageSize)
@@ -52,7 +51,6 @@ namespace VuDucNam_L1.Repository.Repositories
 
         public async Task AddAsync(DistrictModel districtModel)
         {
-            await _validator.ValidateAndThrowAsync(districtModel);
             var district = _mapper.Map<District>(districtModel);
             _context.Districts.Add(district);
             await _context.SaveChangesAsync();
@@ -60,7 +58,11 @@ namespace VuDucNam_L1.Repository.Repositories
 
         public async Task UpdateAsync(DistrictModel districtModel)
         {
-            await _validator.ValidateAndThrowAsync(districtModel);
+            var districtExists = await _context.Districts.AsNoTracking().AnyAsync(e => e.DistrictId == districtModel.DistrictId);
+            if (!districtExists)
+            {
+                throw new Exception($"District with ID {districtModel.DistrictId} not found.");
+            }
             var district = _mapper.Map<District>(districtModel);
             _context.Districts.Update(district);
             await _context.SaveChangesAsync();
@@ -68,28 +70,42 @@ namespace VuDucNam_L1.Repository.Repositories
 
         public async Task DeleteAsync(int id)
         {
-            var district = await _context.Districts.FindAsync(id);
-            if (district != null)
+            var districtExists = await _context.Districts.AsNoTracking().AnyAsync(e => e.DistrictId == id);
+            if (!districtExists)
             {
-                _context.Districts.Remove(district);
-                await _context.SaveChangesAsync();
+                throw new Exception($"District with ID {id} not found.");
             }
+            var district = await _context.Districts.FindAsync(id);
+            _context.Districts.Remove(district);
+            await _context.SaveChangesAsync();
         }
 
         public async Task<int> GetTotalCountAsync()
         {
-            return await _context.Districts.CountAsync();
+            return await _context.Districts.AsNoTracking().CountAsync();
         }
 
         public async Task<IEnumerable<DistrictModel>> GetByCityIdAsync(int cityId, int pageNumber, int pageSize)
         {
-            var districts = await _context.Districts
+            var districts = await _context.Districts.AsNoTracking()
                 .Where(d => d.CityId == cityId)
                 .Skip((pageNumber - 1) * pageSize)
                 .Take(pageSize)
                 .ToListAsync();
             return _mapper.Map<IEnumerable<DistrictModel>>(districts);
         }
+        public async Task CheckDistrictIdAsync(int districtId, int cityId)
+        {
+            var districtExists = await _context.Districts.AsNoTracking().AnyAsync(e => e.DistrictId == districtId && e.CityId == cityId);
+            if (!districtExists)
+            {
+                throw new Exception($"District with ID {districtId} and CityId {cityId} not found.");
+            }
+        }
+        public async Task<int> GetDistrictIdByNameAsync(string districtName)
+        {
+            var district = await _context.Districts.AsNoTracking().FirstOrDefaultAsync(d => d.DistrictName == districtName);
+            return district == null ? throw new InvalidOperationException($"District '{districtName}' not found.") : district.DistrictId;
+        }
     }
-
 }

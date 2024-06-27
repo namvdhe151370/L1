@@ -13,18 +13,28 @@ namespace VuDucNam_L1.Repository.Repositories
     {
         private readonly AppDbContext _context;
         private readonly IMapper _mapper;
-        private readonly IValidator<EmployeeModel> _employeeValidator;
-        private readonly IValidator<CertificateModel> _certificateValidator;
+        private readonly IJobRepository _jobRepository;
+        private readonly IWardRepository _wardRepository;
+        private readonly IEthnicRepository _ethnicRepository;
+        private readonly IDistrictRepository _districtRepository;
+        private readonly ICityRepository _cityRepository;
 
-        public EmployeeRepository
-            (AppDbContext context, IMapper mapper,
-            IValidator<EmployeeModel> employeeValidator,
-            IValidator<CertificateModel> certificateValidator)
+        public EmployeeRepository(
+            AppDbContext context, 
+            IMapper mapper, 
+            IJobRepository jobRepository, 
+            IWardRepository wardRepository, 
+            IEthnicRepository ethnicRepository, 
+            IDistrictRepository districtRepository, 
+            ICityRepository cityRepository)
         {
             _context = context;
             _mapper = mapper;
-            _employeeValidator = employeeValidator;
-            _certificateValidator = certificateValidator;
+            _jobRepository = jobRepository;
+            _wardRepository = wardRepository;
+            _ethnicRepository = ethnicRepository;
+            _districtRepository = districtRepository;
+            _cityRepository = cityRepository;
         }
 
         public async Task<IEnumerable<EmployeeModel>> GetAllEmployeesAsync(int pageNumber, int pageSize)
@@ -63,28 +73,28 @@ namespace VuDucNam_L1.Repository.Repositories
             return _mapper.Map<IEnumerable<EmployeeModel>>(employees);
         }
 
-        public async Task CreateEmployeeToImportAsync(EmployeeImportModel employeeImport)
+        public async Task<EmployeeModel> PrepareEmployeeModelToImportAsync(EmployeeImportModel employeeImport)
         {
             int cityId = 0, districtId = 0, wardId = 0, ethnicId = 0, jobId = 0;
             if (!string.IsNullOrEmpty(employeeImport.CityName))
             {
-                cityId = await GetCityIdByNameAsync(employeeImport.CityName);
+                cityId = await _cityRepository.GetCityIdByNameAsync(employeeImport.CityName);
             }
             if (!string.IsNullOrEmpty(employeeImport.DistrictName))
             {
-                districtId = await GetDistrictIdByNameAsync(employeeImport.DistrictName);
+                districtId = await _districtRepository.GetDistrictIdByNameAsync(employeeImport.DistrictName);
             }
             if (!string.IsNullOrEmpty(employeeImport.WardName))
             {
-                wardId = await GetWardIdByNameAsync(employeeImport.WardName);
+                wardId = await _wardRepository.GetWardIdByNameAsync(employeeImport.WardName);
             }
             if (!string.IsNullOrEmpty(employeeImport.EthnicName))
             {
-                ethnicId = await GetEthnicIdByNameAsync(employeeImport.EthnicName);
+                ethnicId = await _ethnicRepository.GetEthnicIdByNameAsync(employeeImport.EthnicName);
             }
             if (!string.IsNullOrEmpty(employeeImport.JobName))
             {
-                jobId = await GetJobIdByNameAsync(employeeImport.JobName);
+                jobId = await _jobRepository.GetJobIdByNameAsync(employeeImport.JobName);
             }
 
             var employeeModel = new EmployeeModel
@@ -102,45 +112,14 @@ namespace VuDucNam_L1.Repository.Repositories
                 SpecificAddress = employeeImport.SpecificAddress
             };
 
-            var validationResult = await _employeeValidator.ValidateAsync(employeeModel);
-            if (!validationResult.IsValid)
-            {
-                throw new ValidationException(validationResult.Errors);
-            }
+            return employeeModel;
+        }
 
+        public async Task CreateEmployeeToImportAsync(EmployeeModel employeeModel)
+        {
             var employee = _mapper.Map<Employee>(employeeModel);
             _context.Employees.Add(employee);
             await _context.SaveChangesAsync();
-        }
-
-        private async Task<int> GetCityIdByNameAsync(string cityName)
-        {
-            var city = await _context.Cities.AsNoTracking().FirstOrDefaultAsync(c => c.CityName == cityName);
-            return city == null ? throw new InvalidOperationException($"City '{cityName}' not found.") : city.CityId;
-        }
-
-        private async Task<int> GetDistrictIdByNameAsync(string districtName)
-        {
-            var district = await _context.Districts.AsNoTracking().FirstOrDefaultAsync(d => d.DistrictName == districtName);
-            return district == null ? throw new InvalidOperationException($"District '{districtName}' not found.") : district.DistrictId;
-        }
-
-        private async Task<int> GetWardIdByNameAsync(string wardName)
-        {
-            var ward = await _context.Wards.AsNoTracking().FirstOrDefaultAsync(w => w.WardName == wardName);
-            return ward == null ? throw new InvalidOperationException($"Ward '{wardName}' not found.") : ward.WardId;
-        }
-
-        private async Task<int> GetEthnicIdByNameAsync(string ethnicName)
-        {
-            var ethnic = await _context.Ethnics.AsNoTracking().FirstOrDefaultAsync(e => e.EthnicName == ethnicName);
-            return ethnic == null ? throw new InvalidOperationException($"Ethnic '{ethnicName}' not found.") : ethnic.EthnicId;
-        }
-
-        private async Task<int> GetJobIdByNameAsync(string jobName)
-        {
-            var job = await _context.Jobs.AsNoTracking().FirstOrDefaultAsync(j => j.JobName == jobName);
-            return job == null ? throw new InvalidOperationException($"Job '{jobName}' not found.") : job.JobId;
         }
 
         public async Task<EmployeeModel> GetEmployeeByIdAsync(int employeeId)
@@ -167,12 +146,11 @@ namespace VuDucNam_L1.Repository.Repositories
 
         public async Task AddEmployeeAsync(EmployeeModel employeeModel)
         {
-            var validationResult = await _employeeValidator.ValidateAsync(employeeModel);
-            if (!validationResult.IsValid)
-            {
-                throw new ValidationException(validationResult.Errors);
-            }
-
+            await _ethnicRepository.CheckEthnicIdAsync(employeeModel.EthnicId);
+            await _jobRepository.CheckJobIdAsync(employeeModel.JobId);
+            await _cityRepository.CheckCityIdAsync(employeeModel.CityId);
+            await _districtRepository.CheckDistrictIdAsync(employeeModel.DistrictId , employeeModel.CityId);
+            await _wardRepository.CheckWardIdAsync(employeeModel.WardId, employeeModel.DistrictId);
             var employee = _mapper.Map<Employee>(employeeModel);
             _context.Employees.Add(employee);
             await _context.SaveChangesAsync();
@@ -187,41 +165,27 @@ namespace VuDucNam_L1.Repository.Repositories
                 throw new ValidationException($"Employee with ID {employeeId} not found.");
             }
 
-            foreach (var cert in certificates)
-            {
-                var validationResult = await _certificateValidator.ValidateAsync(cert);
-
-                if (!validationResult.IsValid)
-                {
-                    throw new ValidationException(validationResult.Errors);
-                }
-                cert.EmployeeId = employeeId;
-                var certificateEntity = _mapper.Map<Certificate>(cert);
-                var existingCertificate = await _context.Certificates
-                    .AsNoTracking()
-                    .AnyAsync(c => c.EmployeeId == employeeId && c.Name == cert.Name && c.IssuedDate == cert.IssuedDate);
-
-                if (!existingCertificate)
-                {
-                    _context.Certificates.Add(certificateEntity);
-                }
-            }
+            var entities = certificates.Select(c => {
+                var entity = _mapper.Map<Certificate>(c);
+                entity.EmployeeId = employeeId;
+                return entity;
+            });
+            await _context.Certificates.AddRangeAsync(entities);
             await _context.SaveChangesAsync();
         }
 
         public async Task UpdateEmployeeAsync(EmployeeModel employeeModel)
         {
-            var validationResult = await _employeeValidator.ValidateAsync(employeeModel);
-            if (!validationResult.IsValid)
-            {
-                throw new ValidationException(validationResult.Errors);
-            }
-
             var employeeExists = await _context.Employees.AsNoTracking().AnyAsync(e => e.EmployeeId == employeeModel.EmployeeId);
             if (!employeeExists)
             {
                 throw new Exception($"Employee with ID {employeeModel.EmployeeId} not found.");
             }
+            await _ethnicRepository.CheckEthnicIdAsync(employeeModel.EthnicId);
+            await _jobRepository.CheckJobIdAsync(employeeModel.JobId);
+            await _cityRepository.CheckCityIdAsync(employeeModel.CityId);
+            await _districtRepository.CheckDistrictIdAsync(employeeModel.DistrictId, employeeModel.CityId);
+            await _wardRepository.CheckWardIdAsync(employeeModel.WardId, employeeModel.DistrictId);
 
             var existingEmployee = await _context.Employees.FindAsync(employeeModel.EmployeeId);
             _mapper.Map(employeeModel, existingEmployee);
@@ -241,19 +205,12 @@ namespace VuDucNam_L1.Repository.Repositories
                 .ToListAsync();
             _context.Certificates.RemoveRange(existingCertificates);
 
-            foreach (var cert in certificates)
-            {
-                var validationResult = await _certificateValidator.ValidateAsync(cert);
-
-                if (!validationResult.IsValid)
-                {
-                    throw new ValidationException(validationResult.Errors);
-                }
-
-                cert.EmployeeId = employeeId;
-                var certificateEntity = _mapper.Map<Certificate>(cert);
-                _context.Certificates.Add(certificateEntity);
-            }
+            var entities = certificates.Select(c => {
+                var entity = _mapper.Map<Certificate>(c);
+                entity.EmployeeId = employeeId;
+                return entity;
+            });
+            await _context.Certificates.AddRangeAsync(entities);
             await _context.SaveChangesAsync();
         }
 

@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "rYfUqmh+P6DJr+lUwN2iRs9YKigw9q9YACqGqqQcBiLkHZzqBuE3FGLHaUUoNa6SUbaUsx9B4jx9ZFBjmflFtA==",
+  "dgSpecHash": "wioBkPgv7UPjY4oLpJAAxutBbBlOq4AdqGa49x+0UmRJ6wFKtSf0+Bgf1feI+bRwRNhDx17SjeRot+G0yA30kQ==",
   "success": true,
-  "projectFilePath": "C:\\Users\\hellb\\OneDrive\\Documents\\L1\\20240621_VuDucNam_L1\\VuDucNam_L1\\VuDucNam_L1\\VuDucNam_L1.csproj",
+  "projectFilePath": "C:\\Users\\hellb\\OneDrive\\Documents\\GitHub\\L1\\VuDucNam_L1\\VuDucNam_L1\\VuDucNam_L1.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\hellb\\.nuget\\packages\\automapper\\12.0.1\\automapper.12.0.1.nupkg.sha512",
     "C:\\Users\\hellb\\.nuget\\packages\\automapper.extensions.microsoft.dependencyinjection\\12.0.1\\automapper.extensions.microsoft.dependencyinjection.12.0.1.nupkg.sha512",

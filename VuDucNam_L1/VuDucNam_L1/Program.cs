@@ -24,7 +24,7 @@ namespace VuDucNam_L1
                 options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
             builder.Services.AddTransient<IValidator<EmployeeModel>, EmployeeValidator>();
             builder.Services.AddTransient<IValidator<CityModel>, CityValidator>();
-            builder.Services.AddTransient<IValidator<DistrictModel>, DictrictValidator>();
+            builder.Services.AddTransient<IValidator<DistrictModel>, DistrictValidator>();
             builder.Services.AddTransient<IValidator<WardModel>, WardValidator>();
             builder.Services.AddTransient<IValidator<CertificateModel>, CertificateValidator>();
 

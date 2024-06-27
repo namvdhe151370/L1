@@ -9,10 +9,10 @@ namespace VuDucNam_L1.Validation
         public WardValidator()
         {
             RuleFor(e => e.WardName)
-                .NotEmpty().WithMessage(NotificationMessage.WardNameEmpty)
-                .MaximumLength(Validates.WardNameLength).WithMessage(NotificationMessage.WardNameLength);
+                .NotEmpty().WithMessage(Validates.WardNameEmpty)
+                .MaximumLength(Validates.WardNameLengthMax).WithMessage(Validates.WardNameLength);
             RuleFor(e => e.DistrictId)
-            .NotEmpty().WithMessage(NotificationMessage.DistrictEmpty);
+            .NotEmpty().WithMessage(Validates.DistrictEmpty);
         }
     }
 }

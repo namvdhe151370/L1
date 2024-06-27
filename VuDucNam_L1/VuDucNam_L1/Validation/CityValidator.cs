@@ -9,8 +9,8 @@ namespace VuDucNam_L1.Validation
         public CityValidator() 
         {
             RuleFor(e => e.CityName)
-                .NotEmpty().WithMessage(NotificationMessage.CityNameEmpty)
-                .MaximumLength(Validates.CityNameMaxLength).WithMessage(NotificationMessage.CityNameLength);
+                .NotEmpty().WithMessage(Validates.CityNameEmpty)
+                .MaximumLength(Validates.CityNameMaxLength).WithMessage(Validates.CityNameLength);
         }
     }
 }

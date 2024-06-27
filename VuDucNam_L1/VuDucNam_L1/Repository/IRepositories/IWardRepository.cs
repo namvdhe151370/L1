@@ -15,6 +15,8 @@ namespace VuDucNam_L1.Repository.IRepositories
         Task UpdateAsync(WardModel wardModel);
         Task DeleteAsync(int id);
         Task<IEnumerable<SelectListItem>> GetDistrictsSelectListAsync();
+        Task CheckWardIdAsync(int wardId, int districtId);
+        Task<int> GetWardIdByNameAsync(string wardName);
     }
 
 }

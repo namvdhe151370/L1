@@ -14,5 +14,7 @@ namespace VuDucNam_L1.Repository.IRepositories
         Task DeleteAsync(int id);
         Task<int> GetTotalCountAsync();
         Task<IEnumerable<DistrictModel>> GetByCityIdAsync(int cityId, int pageNumber, int pageSize);
+        Task CheckDistrictIdAsync(int districtId, int cityId);
+        Task<int> GetDistrictIdByNameAsync(string districName);
     }
 }

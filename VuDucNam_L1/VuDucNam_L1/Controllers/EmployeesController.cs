@@ -59,7 +59,7 @@ namespace VuDucNam_L1.Controllers
         {
             if (string.IsNullOrEmpty(selectedEmployeeIds))
             {
-                TempData[Validates.ErrorMessage] = NotificationMessage.NoEmployeesSelectedForExport;
+                TempData[Validates.ErrorMessage] = Validates.NoEmployeesSelectedForExport;
                 return RedirectToAction(nameof(Index));
             }
 
@@ -69,12 +69,12 @@ namespace VuDucNam_L1.Controllers
                 var employees = await _employeeService.GetEmployeesToExportAsync(employeeIds);
                 var memoryStream = _employeeService.ExportEmployeesToCsv(employees);
 
-                TempData[Validates.SuccessMessage] = NotificationMessage.EmployeesExportedSuccessfully;
+                TempData[Validates.SuccessMessage] = Validates.EmployeesExportedSuccessfully;
                 return File(memoryStream, "text/csv", "employees.xls");
             }
             catch (Exception ex)
             {
-                TempData[Validates.ErrorMessage] = string.Format(NotificationMessage.ErrorExportingEmployees, ex.Message);
+                TempData[Validates.ErrorMessage] = string.Format(Validates.ErrorExportingEmployees, ex.Message);
                 return RedirectToAction(nameof(Index));
             }
         }
@@ -85,13 +85,13 @@ namespace VuDucNam_L1.Controllers
         {
             if (file == null || file.Length <= 0)
             {
-                TempData[Validates.ErrorMessage] = NotificationMessage.NoFileUploaded;
+                TempData[Validates.ErrorMessage] = Validates.NoFileUploaded;
                 return RedirectToAction(nameof(Index));
             }
             string fileExtension = Path.GetExtension(file.FileName);
             if (fileExtension != ".xlsx" && fileExtension != ".xls")
             {
-                TempData[Validates.ErrorMessage] = NotificationMessage.InvalidFileFormat;
+                TempData[Validates.ErrorMessage] = Validates.InvalidFileFormat;
                 return RedirectToAction(nameof(Index));
             }
             try
@@ -116,22 +116,22 @@ namespace VuDucNam_L1.Controllers
                         {
                             ModelState.AddModelError(error.PropertyName, error.ErrorMessage);
                         }
-                        TempData[Validates.ErrorMessage] = NotificationMessage.ValidationErrorsOccurred;
+                        TempData[Validates.ErrorMessage] = Validates.ValidationErrorsOccurred;
                         return RedirectToAction(nameof(Index));
                     }
                     catch (Exception ex)
                     {
-                        TempData[Validates.ErrorMessage] = string.Format(NotificationMessage.ErrorCreatingEmployee, ex.Message);
+                        TempData[Validates.ErrorMessage] = string.Format(Validates.ErrorCreatingEmployee, ex.Message);
                         return RedirectToAction(nameof(Index));
                     }
                 }
 
-                TempData[Validates.SuccessMessage] = NotificationMessage.EmployeesImportedSuccessfully;
+                TempData[Validates.SuccessMessage] = Validates.EmployeesImportedSuccessfully;
                 return RedirectToAction(nameof(Index));
             }
             catch (Exception ex)
             {
-                TempData[Validates.ErrorMessage] = string.Format(NotificationMessage.ErrorProcessingFile, ex.Message);
+                TempData[Validates.ErrorMessage] = string.Format(Validates.ErrorProcessingFile, ex.Message);
                 return RedirectToAction(nameof(Index));
             }
         }
@@ -157,17 +157,17 @@ namespace VuDucNam_L1.Controllers
                 {
                     await _employeeService.AddEmployeeAsync(employeeModel);
                     await _employeeService.AddCertificatesAsync(employeeModel.EmployeeId, employeeModel.Certificates);
-                    TempData[Validates.SuccessMessage] = NotificationMessage.EmployeeCreatedSuccessfully;
+                    TempData[Validates.SuccessMessage] = Validates.EmployeeCreatedSuccessfully;
                     return RedirectToAction(nameof(Index));
                 }
                 catch (FluentValidation.ValidationException ex)
                 {
-                    TempData[Validates.ErrorMessage] = string.Format(NotificationMessage.ErrorCreatingEmployee, ex.Message);
+                    TempData[Validates.ErrorMessage] = string.Format(Validates.ErrorCreatingEmployee, ex.Message);
                     return RedirectToAction(nameof(Index));
                 }
                 catch (Exception ex)
                 {
-                    TempData[Validates.ErrorMessage] = string.Format(NotificationMessage.ErrorCreatingEmployee, ex.Message);
+                    TempData[Validates.ErrorMessage] = string.Format(Validates.ErrorCreatingEmployee, ex.Message);
                     return RedirectToAction(nameof(Index));
                 }
             }
@@ -206,17 +206,17 @@ namespace VuDucNam_L1.Controllers
                 {
                     await _employeeService.UpdateEmployeeAsync(model);
                     await _employeeService.UpdateCertificatesAsync(model);
-                    TempData[Validates.SuccessMessage] = NotificationMessage.EmployeeUpdatedSuccessfully;
+                    TempData[Validates.SuccessMessage] = Validates.EmployeeUpdatedSuccessfully;
                     return RedirectToAction(nameof(Index));
                 }
                 catch (FluentValidation.ValidationException ex)
                 {
-                    TempData[Validates.ErrorMessage] = NotificationMessage.ValidationErrorsOccurred;
+                    TempData[Validates.ErrorMessage] = Validates.ValidationErrorsOccurred;
                     return RedirectToAction(nameof(Index));
                 }
                 catch (Exception ex)
                 {
-                    TempData[Validates.ErrorMessage] = string.Format(NotificationMessage.ErrorUpdatingEmployee, ex.Message);
+                    TempData[Validates.ErrorMessage] = string.Format(Validates.ErrorUpdatingEmployee, ex.Message);
                     return RedirectToAction(nameof(Index));
                 }
             }
@@ -265,12 +265,12 @@ namespace VuDucNam_L1.Controllers
             {
                 await _employeeService.DeleteEmployeeAsync(id);
                 await _employeeService.DeleteCertificatesAsync(id);
-                TempData[Validates.SuccessMessage] = NotificationMessage.EmployeeDeletedSuccessfully;
+                TempData[Validates.SuccessMessage] = Validates.EmployeeDeletedSuccessfully;
                 return RedirectToAction(nameof(Index));
             }
             catch (Exception ex)
             {
-                TempData[Validates.ErrorMessage] = string.Format(NotificationMessage.ErrorDeletingEmployee, ex.Message);
+                TempData[Validates.ErrorMessage] = string.Format(Validates.ErrorDeletingEmployee, ex.Message);
                 return RedirectToAction(nameof(Index));
             }
         }

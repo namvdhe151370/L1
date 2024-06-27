@@ -3,8 +3,10 @@ using FluentValidation;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
+using System.Drawing.Drawing2D;
 using System.Linq;
 using VuDucNam_L1.DataAccess;
+using VuDucNam_L1.Migrations;
 using VuDucNam_L1.Models;
 using VuDucNam_L1.Repository.IRepositories;
 
@@ -14,24 +16,23 @@ namespace VuDucNam_L1.Repository.Repositories
     {
         private readonly AppDbContext _context;
         private readonly IMapper _mapper;
-        private readonly IValidator<WardModel> _validator;
 
-        public WardRepository(AppDbContext context, IMapper mapper, IValidator<WardModel> validator)
+        public WardRepository(AppDbContext context, IMapper mapper)
         {
             _context = context;
             _mapper = mapper;
-            _validator = validator;
         }
 
         public async Task<IEnumerable<WardModel>> GetAllAsync()
         {
-            var wards = await _context.Wards.ToListAsync();
+            var wards = await _context.Wards.AsNoTracking().ToListAsync();
             return _mapper.Map<List<WardModel>>(wards);
         }
 
         public async Task<IEnumerable<WardModel>> GetWardsByDistrictIdAsync(int districtId)
         {
             var wards = await _context.Wards
+                .AsNoTracking()
                 .Where(w => w.DistrictId == districtId)
                 .ToListAsync();
             return _mapper.Map<List<WardModel>>(wards);
@@ -40,6 +41,7 @@ namespace VuDucNam_L1.Repository.Repositories
         public async Task<IEnumerable<WardModel>> GetAllByPageAsync(int pageNumber, int pageSize)
         {
             var wards = await _context.Wards
+                .AsNoTracking()
                 .Include(w => w.District)
                 .OrderBy(w => w.WardId)
                 .Skip((pageNumber - 1) * pageSize)
@@ -51,12 +53,13 @@ namespace VuDucNam_L1.Repository.Repositories
 
         public async Task<int> GetTotalCountAsync()
         {
-            return await _context.Wards.CountAsync();
+            return await _context.Wards.AsNoTracking().CountAsync();
         }
 
         public async Task<WardModel> GetByIdAsync(int id)
         {
             var ward = await _context.Wards
+                .AsNoTracking()
                 .Include(w => w.District)
                 .FirstOrDefaultAsync(w => w.WardId == id);
 
@@ -65,8 +68,6 @@ namespace VuDucNam_L1.Repository.Repositories
 
         public async Task AddAsync(WardModel wardModel)
         {
-            await _validator.ValidateAndThrowAsync(wardModel);
-
             var ward = _mapper.Map<Ward>(wardModel);
             _context.Wards.Add(ward);
             await _context.SaveChangesAsync();
@@ -74,25 +75,27 @@ namespace VuDucNam_L1.Repository.Repositories
 
         public async Task UpdateAsync(WardModel wardModel)
         {
-            await _validator.ValidateAndThrowAsync(wardModel);
-
-            var ward = await _context.Wards.FindAsync(wardModel.WardId);
-            if (ward != null)
+            var wardExists = await _context.Wards.AsNoTracking().AnyAsync(e => e.WardId == wardModel.WardId);
+            if (!wardExists)
             {
-                _mapper.Map(wardModel, ward);
-                _context.Wards.Update(ward);
-                await _context.SaveChangesAsync();
+                throw new Exception($"Ward with ID {wardModel.WardId} not found.");
             }
+            var ward = await _context.Wards.FindAsync(wardModel.WardId);
+            _mapper.Map(wardModel, ward);
+            _context.Wards.Update(ward);
+            await _context.SaveChangesAsync();
         }
 
-        public async Task DeleteAsync(int id)
+        public async Task DeleteAsync(int wardId)
         {
-            var ward = await _context.Wards.FindAsync(id);
-            if (ward != null)
+            var wardExists = await _context.Wards.AsNoTracking().AnyAsync(e => e.WardId == wardId);
+            if (!wardExists)
             {
-                _context.Wards.Remove(ward);
-                await _context.SaveChangesAsync();
+                throw new Exception($"Ward with ID {wardId} not found.");
             }
+            var ward = await _context.Wards.FindAsync(wardId);
+            _context.Wards.Remove(ward);
+            await _context.SaveChangesAsync();
         }
 
         public async Task<IEnumerable<SelectListItem>> GetDistrictsSelectListAsync()
@@ -103,6 +106,20 @@ namespace VuDucNam_L1.Repository.Repositories
                 Value = d.DistrictId.ToString(),
                 Text = d.DistrictName
             }).ToList();
+        }
+
+        public async Task CheckWardIdAsync(int wardId, int districtId)
+        {
+            var wardExists = await _context.Wards.AsNoTracking().AnyAsync(e => e.WardId == wardId && e.DistrictId == districtId);
+            if (!wardExists)
+            {
+                throw new Exception($"Ward with ID {wardId} and {districtId} not found.");
+            }
+        }
+        public async Task<int> GetWardIdByNameAsync(string wardName)
+        {
+            var ward = await _context.Wards.AsNoTracking().FirstOrDefaultAsync(w => w.WardName == wardName);
+            return ward == null ? throw new InvalidOperationException($"Ward '{wardName}' not found.") : ward.WardId;
         }
     }
 }

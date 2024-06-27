@@ -18,41 +18,41 @@ namespace VuDucNam_L1.Validation
             _context = context;
 
             RuleFor(e => e.EmployeeName)
-                .NotEmpty().WithMessage(NotificationMessage.EmployeeNameEmpty)
-                .MaximumLength(Validates.EmployeeNameMaxLength).WithMessage(NotificationMessage.EmployeeNameLength);
+                .NotEmpty().WithMessage(Validates.EmployeeNameEmpty)
+                .MaximumLength(Validates.EmployeeNameMaxLength).WithMessage(Validates.EmployeeNameLength);
 
             RuleFor(e => e.Dob)
-                .NotEmpty().WithMessage(NotificationMessage.DobLength);
+                .NotEmpty().WithMessage(Validates.DobLength);
 
             RuleFor(e => e.Age)
-                .GreaterThan(Validates.AgeLengthGreater).WithMessage(NotificationMessage.AgeLengthGreater)
-                .LessThan(Validates.AgeLengthLess).WithMessage(NotificationMessage.AgeLengthLess);
+                .GreaterThan(Validates.AgeLengthMin).WithMessage(Validates.AgeLengthGreater)
+                .LessThan(Validates.AgeLengthMax).WithMessage(Validates.AgeLengthLess);
 
             RuleFor(e => e.EthnicId)
-                .NotEmpty().WithMessage(NotificationMessage.EthnicityEmpty);
+                .NotEmpty().WithMessage(Validates.EthnicityEmpty);
 
             RuleFor(e => e.JobId)
-                .NotEmpty().WithMessage(NotificationMessage.JobEmpty);
+                .NotEmpty().WithMessage(Validates.JobEmpty);
 
             RuleFor(e => e.CitizenNumber)
-                .Matches(@"^\d{12}$").WithMessage(NotificationMessage.CitizenNumberFormat)
-                .Must((model, citizenNumber) => BeUniqueCitizenNumber(model, citizenNumber)).WithMessage(NotificationMessage.CitizenNumberUnique);
+                .Matches(@"^\d{12}$").WithMessage(Validates.CitizenNumberFormat)
+                .Must((model, citizenNumber) => BeUniqueCitizenNumber(model, citizenNumber)).WithMessage(Validates.CitizenNumberUnique);
 
             RuleFor(e => e.PhoneNumber)
-                .Matches(@"^\d{10,12}$").WithMessage(NotificationMessage.PhoneNumberFormat);
+                .Matches(@"^\d{10,12}$").WithMessage(Validates.PhoneNumberFormat);
 
             RuleFor(e => e.CityId)
-                .NotEmpty().WithMessage(NotificationMessage.CityEmpty);
+                .NotEmpty().WithMessage(Validates.CityEmpty);
 
             RuleFor(e => e.DistrictId)
-                .NotEmpty().WithMessage(NotificationMessage.DistrictEmpty);
+                .NotEmpty().WithMessage(Validates.DistrictEmpty);
 
             RuleFor(e => e.WardId)
-                .NotEmpty().WithMessage(NotificationMessage.WardEmpty);
+                .NotEmpty().WithMessage(Validates.WardEmpty);
 
             RuleFor(e => e.SpecificAddress)
-               .NotEmpty().WithMessage(NotificationMessage.SpecificAddressEmpty)
-               .MaximumLength(Validates.SpecificAddressLength).WithMessage(NotificationMessage.SpecificAddressLength);
+               .NotEmpty().WithMessage(Validates.SpecificAddressEmpty)
+               .MaximumLength(Validates.SpecificAddressLengthMax).WithMessage(Validates.SpecificAddressLength);
 
             RuleForEach(e => e.Certificates).SetValidator(new CertificateValidator());
         }

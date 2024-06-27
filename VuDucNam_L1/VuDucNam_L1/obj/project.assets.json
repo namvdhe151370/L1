@@ -12129,11 +12129,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\hellb\\OneDrive\\Documents\\L1\\20240621_VuDucNam_L1\\VuDucNam_L1\\VuDucNam_L1\\VuDucNam_L1.csproj",
+      "projectUniqueName": "C:\\Users\\hellb\\OneDrive\\Documents\\GitHub\\L1\\VuDucNam_L1\\VuDucNam_L1\\VuDucNam_L1.csproj",
       "projectName": "VuDucNam_L1",
-      "projectPath": "C:\\Users\\hellb\\OneDrive\\Documents\\L1\\20240621_VuDucNam_L1\\VuDucNam_L1\\VuDucNam_L1\\VuDucNam_L1.csproj",
+      "projectPath": "C:\\Users\\hellb\\OneDrive\\Documents\\GitHub\\L1\\VuDucNam_L1\\VuDucNam_L1\\VuDucNam_L1.csproj",
       "packagesPath": "C:\\Users\\hellb\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\hellb\\OneDrive\\Documents\\L1\\20240621_VuDucNam_L1\\VuDucNam_L1\\VuDucNam_L1\\obj\\",
+      "outputPath": "C:\\Users\\hellb\\OneDrive\\Documents\\GitHub\\L1\\VuDucNam_L1\\VuDucNam_L1\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
         "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"

@@ -11,10 +11,12 @@ namespace VuDucNam_L1.Service.Services
     public class WardService : IWardService
     {
         private readonly IWardRepository _wardRepository;
+        private readonly IValidator<WardModel> _validator;
 
-        public WardService(IWardRepository wardRepository)
+        public WardService(IWardRepository wardRepository, IValidator<WardModel> validator)
         {
             _wardRepository = wardRepository;
+            _validator = validator;
         }
 
         public async Task<IEnumerable<WardModel>> GetAllAsync()
@@ -38,11 +40,21 @@ namespace VuDucNam_L1.Service.Services
 
         public async Task AddAsync(WardModel wardModel)
         {
+            var validationResult = await _validator.ValidateAsync(wardModel);
+            if (!validationResult.IsValid)
+            {
+                throw new ValidationException(validationResult.Errors);
+            }
             await _wardRepository.AddAsync(wardModel);
         }
 
         public async Task UpdateAsync(WardModel wardModel)
         {
+            var validationResult = await _validator.ValidateAsync(wardModel);
+            if (!validationResult.IsValid)
+            {
+                throw new ValidationException(validationResult.Errors);
+            }
             await _wardRepository.UpdateAsync(wardModel);
         }
 
